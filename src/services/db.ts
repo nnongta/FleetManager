@@ -1,6 +1,7 @@
 // src/services/db.ts
 
 export interface Booking {
+    destination: ReactNode;
     id: string;
     requester_id: number;
     purpose: string;
@@ -8,6 +9,7 @@ export interface Booking {
     start_datetime: string;
     end_datetime: string;
     vehicle_id?: number;
+    vehicleType: string;
     pickup_location?: string;
     dropoff_location?: string;
     passenger_count?: number;
@@ -31,7 +33,9 @@ export const dbService = {
                     pickup_location: "Head Office",
                     dropoff_location: "Central Plaza",
                     passenger_count: 2,
-                    vehicle_id: 101
+                    vehicle_id: 101,
+                    destination: undefined,
+                    vehicleType: ""
                 }
             ];
             localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
@@ -42,11 +46,12 @@ export const dbService = {
 
     getBookingById(id: string) {
         const bookings = this.getAllBookings();
-        return bookings.find(b => b.id === id);
+        const cleanId = id.startsWith("#") ? id : `#${id}`;
+        return bookings.find(b => b.id === cleanId);
     },
 
 
-  createBooking(data: Omit<Booking, 'id' | 'status'>): Booking {
+    createBooking(data: Omit<Booking, 'id' | 'status'>): Booking {
         const current = this.getAllBookings();
         const newBooking: Booking = {
             ...data,
