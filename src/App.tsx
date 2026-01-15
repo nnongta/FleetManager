@@ -31,7 +31,7 @@ export default function App() {
           <Route path="bookings/new" element={<CreateBooking />} />
           <Route path="bookings/:id" element={<BookingDetail />} />
           <Route path="approve" element={<BookingApprove />} />
-          <Route path="vehicle" element={<VehicleList />} />
+          <Route path="vehicles" element={<VehicleList />} />
         </Route>
       </Routes>
     </BrowserRouter>

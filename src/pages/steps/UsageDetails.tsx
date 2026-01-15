@@ -1,83 +1,88 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { dbService } from "../../services/db";
+import React from "react";
 
+interface StepProps {
+  onNext: () => void;
+}
 
-export default function BookingDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [booking, setBooking] = useState<Booking | null>(null);
-
-  useEffect(() => {
-    if (!id) return;
-
-    const data = dbService.getBookingById(id);
-    setBooking(data ?? null);
-  }, [id]);
-
-  if (!booking) {
-    return (
-      <div className="py-20 text-center text-slate-500">
-        <p className="text-lg font-semibold">Loading or Booking not found...</p>
-      </div>
-    );
-  }
-
+export default function UsageDetails({ onNext }: StepProps) {
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-extrabold text-slate-900">
-          Booking Detail
-        </h1>
-        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-          booking.status === "Approved" ? "bg-emerald-100 text-emerald-700" :
-          booking.status === "Rejected" ? "bg-red-100 text-red-700" :
-          "bg-yellow-100 text-yellow-700"
-        }`}>
-          {booking.status}
-        </span>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6 text-sm text-slate-700">
-        <Field label="Booking ID" value={booking.id} />
-        <Field label="Requester ID" value={booking.requester_id.toString()} />
-        <Field label="Purpose" value={booking.purpose} />
-        <Field label="Passengers" value={booking.passenger_count?.toString() ?? "-"} />
-        <Field label="Start Time" value={formatDate(booking.start_datetime)} />
-        <Field label="End Time" value={formatDate(booking.end_datetime)} />
-        <Field label="Pickup Location" value={booking.pickup_location ?? "-"} />
-        <Field label="Dropoff Location" value={booking.dropoff_location ?? "-"} />
-        <Field label="Vehicle ID" value={booking.vehicle_id?.toString() ?? "-"} />
-      </div>
-
-      {booking.reject_reason && (
-        <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm font-semibold text-red-700">Reject Reason</p>
-          <p className="text-sm text-red-600 mt-1">{booking.reject_reason}</p>
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="p-8 border-b border-slate-100">
+        <h3 className="flex items-center gap-2 text-xl font-bold mb-6">
+          <span className="material-symbols-outlined text-blue-600">schedule</span>
+          When is the vehicle needed?
+        </h3>
+        
+        {/* Date & Time Selection */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+            <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Start</label>
+            <div className="space-y-4">
+              <input type="date" className="w-full p-3 border rounded-lg" defaultValue="2023-10-27" />
+              <input type="time" className="w-full p-3 border rounded-lg" defaultValue="09:00" />
+            </div>
+          </div>
+          <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+            <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-4">End</label>
+            <div className="space-y-4">
+              <input type="date" className="w-full p-3 border rounded-lg" defaultValue="2023-10-28" />
+              <input type="time" className="w-full p-3 border rounded-lg" defaultValue="18:00" />
+            </div>
+          </div>
         </div>
-      )}
+        
+        <div className="inline-flex items-center gap-2 text-sm text-blue-700 font-bold bg-blue-50 px-3 py-2 rounded-lg">
+          <span className="material-symbols-outlined text-[18px]">timelapse</span>
+          Total Duration: 1 Day, 9 Hours
+        </div>
+      </div>
 
-      <div className="mt-8 flex justify-end">
-        <button
-          onClick={() => navigate(-1)}
-          className="px-5 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition"
-        >
-          Back
+      {/* Location Selection */}
+      <div className="p-8 space-y-6">
+        <h3 className="flex items-center gap-2 text-xl font-bold mb-2">
+          <span className="material-symbols-outlined text-blue-600">location_on</span>
+          Where is the journey?
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Pick-up Location</label>
+              <div className="relative">
+                <span className="absolute left-3 top-3.5 text-slate-400 material-symbols-outlined text-[20px]">search</span>
+                <input type="text" placeholder="Search office or enter address..." className="w-full pl-10 p-3 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-600" />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between mb-2">
+                <label className="text-sm font-bold text-slate-700">Drop-off Location</label>
+                <label className="flex items-center gap-2 text-xs text-slate-500">
+                  <input type="checkbox" className="rounded border-slate-300 text-blue-600" /> Same as pick-up
+                </label>
+              </div>
+              <div className="relative">
+                <span className="absolute left-3 top-3.5 text-slate-400 material-symbols-outlined text-[20px]">search</span>
+                <input type="text" placeholder="Search office or enter address..." className="w-full pl-10 p-3 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-600" />
+              </div>
+            </div>
+          </div>
+          
+          {/* Map Preview */}
+          <div className="bg-slate-100 rounded-xl overflow-hidden relative border min-h-[200px]">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <button className="bg-white px-4 py-2 rounded-full shadow-md text-sm font-bold flex items-center gap-2 hover:bg-slate-50">
+                <span className="material-symbols-outlined text-blue-600">map</span> View Map
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="p-6 bg-slate-50 border-t flex justify-end">
+        <button onClick={onNext} className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-12 rounded-lg font-bold flex items-center gap-2 shadow-lg shadow-blue-600/20 transition-all">
+          Next Step <span className="material-symbols-outlined">arrow_forward</span>
         </button>
       </div>
     </div>
   );
-}
-
-function Field({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs text-slate-500 mb-1">{label}</p>
-      <p className="font-semibold text-slate-900">{value}</p>
-    </div>
-  );
-}
-
-function formatDate(date: string) {
-  return new Date(date).toLocaleString();
 }
