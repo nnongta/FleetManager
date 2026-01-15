@@ -82,62 +82,69 @@ export default function CreateBooking() {
       <main className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
         {/* คอลัมน์ซ้าย: แบบฟอร์มในแต่ละ Step */}
-        <div className="lg:col-span-2 order-2 lg:order-1">
+        <div className={`${currentStep === 3 ? "lg:col-span-full" : "lg:col-span-2"} order-2 lg:order-1`}>
           {currentStep === 1 && <UsageDetails onNext={nextStep} />}
           {currentStep === 2 && <VehicleSelection onNext={nextStep} onBack={prevStep} />}
           {currentStep === 3 && <BookingConfirmation onBack={prevStep} />}
         </div>
 
-        {/* คอลัมน์ขวา: Booking Summary (แสดงข้อมูลสรุปที่เลือก) */}
-        <aside className="lg:col-span-1 order-1 lg:order-2">
-          <div className="sticky top-24 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden ring-1 ring-slate-900/5">
-            <div className="p-5 border-b bg-slate-50/50">
-              <h4 className="font-bold text-slate-900 flex items-center gap-2">
-                <span className="material-symbols-outlined text-blue-600 text-[20px]">assignment</span>
-                Booking Summary
-              </h4>
-            </div>
-            <div className="p-6 space-y-6">
-              {/* รายละเอียดวันเวลา */}
-              <div className="flex gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                  <span className="material-symbols-outlined">calendar_month</span>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Date & Time</p>
-                  <p className="text-sm font-bold text-slate-900">Oct 24, 2023</p>
-                  <p className="text-xs font-medium text-slate-500">09:00 AM - 11:00 AM</p>
-                </div>
-              </div>
-
-              {/* รายละเอียดรถที่เลือก (จะปรากฏใน Step 2-3) */}
-              {currentStep >= 2 && (
-                <div className="flex gap-4 animate-in fade-in duration-500">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-600">
-                    <span className="material-symbols-outlined">directions_car</span>
+        {/* คอลัมน์ขวา: Booking Summary - ซ่อนเมื่ออยู่ Step 3 */}
+        {currentStep !== 3 && (
+          <aside className="lg:col-span-1 order-1 lg:order-2">
+            <div className="sticky top-24 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden ring-1 ring-slate-900/5">
+              {/* คอลัมน์ขวา: Booking Summary (แสดงข้อมูลสรุปที่เลือก) */}
+              <aside className="lg:col-span-1 order-1 lg:order-2">
+                <div className="sticky top-24 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden ring-1 ring-slate-900/5">
+                  <div className="p-5 border-b bg-slate-50/50">
+                    <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-blue-600 text-[20px]">assignment</span>
+                      Booking Summary
+                    </h4>
                   </div>
-                  <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Vehicle</p>
-                    <p className="text-sm font-bold text-slate-900">Toyota Camry</p>
-                    <p className="text-xs font-medium text-slate-500">Sedan • CA 5239</p>
+                  <div className="p-6 space-y-6">
+                    {/* รายละเอียดวันเวลา */}
+                    <div className="flex gap-4">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                        <span className="material-symbols-outlined">calendar_month</span>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Date & Time</p>
+                        <p className="text-sm font-bold text-slate-900">Oct 24, 2023</p>
+                        <p className="text-xs font-medium text-slate-500">09:00 AM - 11:00 AM</p>
+                      </div>
+                    </div>
+
+                    {/* รายละเอียดรถที่เลือก (จะปรากฏใน Step 2-3) */}
+                    {currentStep >= 2 && (
+                      <div className="flex gap-4 animate-in fade-in duration-500">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-600">
+                          <span className="material-symbols-outlined">directions_car</span>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Vehicle</p>
+                          <p className="text-sm font-bold text-slate-900">Toyota Camry</p>
+                          <p className="text-xs font-medium text-slate-500">Sedan • CA 5239</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ส่วนแผนที่ Preview */}
+                    <div className="group relative h-40 w-full overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
+                      <div className="absolute inset-0 bg-blue-600/5 opacity-50"></div>
+                      {/* จำลองรูปแผนที่ */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <button className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-900 shadow-md ring-1 ring-slate-200 hover:bg-slate-50 transition-all">
+                          <span className="material-symbols-outlined text-blue-600 text-[18px]">map</span>
+                          Map Preview
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              )}
-
-              {/* ส่วนแผนที่ Preview */}
-              <div className="group relative h-40 w-full overflow-hidden rounded-xl border border-slate-100 bg-slate-100">
-                <div className="absolute inset-0 bg-blue-600/5 opacity-50"></div>
-                {/* จำลองรูปแผนที่ */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <button className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-900 shadow-md ring-1 ring-slate-200 hover:bg-slate-50 transition-all">
-                    <span className="material-symbols-outlined text-blue-600 text-[18px]">map</span>
-                    Map Preview
-                  </button>
-                </div>
-              </div>
+              </aside>
             </div>
-          </div>
-        </aside>
+          </aside>
+        )}
       </main>
     </div>
   );
