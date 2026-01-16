@@ -75,20 +75,14 @@ export default function BookingDetail() {
     const [endDatePart, endTimePart] = (booking.end_datetime || "").split('T');
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] pb-20">
+        <div className="min-h-screen pb-20">
             {/* Top Navigation Bar Mockup */}
-            <div className="bg-white border-b border-slate-200 px-8 py-4 mb-8 flex items-center justify-between sticky top-0 z-50">
+            <div className="border-b border-slate-200 px-8 py-4 mb-8 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                      <button onClick={() => navigate("/approve")} className="p-2 rounded-lg hover:bg-slate-50 text-slate-500">
                         <span className="material-symbols-outlined">arrow_back</span>
                      </button>
                      <span className="font-bold text-slate-700">Booking Details</span>
-                </div>
-                <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-slate-400">notifications</span>
-                    <div className="size-8 rounded-full bg-blue-100 border border-blue-200 overflow-hidden">
-                        <img src="https://i.pravatar.cc/150?u=admin" alt="Admin" />
-                    </div>
                 </div>
             </div>
 
