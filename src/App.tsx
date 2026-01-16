@@ -8,6 +8,7 @@ import BookingDetail from "./pages/BookingDetail";
 import BookingApprove from "./pages/BookingApprove";
 import CreateBooking from "./pages/CreateBooking";
 import VehicleList from "./pages/VehicleList";
+import NewBookingFlow from "./pages/NewBookingFlow";
 
 export default function App() {
   const [userRole, setUserRole] = useState<'admin' | 'approver'>('admin');
@@ -28,7 +29,7 @@ export default function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="bookings" element={<Booking />} />
-          <Route path="bookings/new" element={<CreateBooking />} />
+          <Route path="/bookings/new" element={<NewBookingFlow />} />
           <Route path="bookings/:id" element={<BookingDetail />} />
           <Route path="approve" element={<BookingApprove />} />
           <Route path="vehicles" element={<VehicleList />} />

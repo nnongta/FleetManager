@@ -1,170 +1,96 @@
-// src/components/BookingTable.tsx
+import { useNavigate } from "react-router-dom";
 import type { Booking } from "../services/db";
 
-interface Props {
-  bookings: Booking[];
+interface BookingTableProps {
+    bookings: Booking[];
 }
 
-const statusStyle = (status: Booking["status"]) => {
-  switch (status) {
-    case "Pending":
-      return "bg-amber-50 text-amber-700 ring-amber-600/20";
-    case "Approved":
-      return "bg-emerald-50 text-emerald-700 ring-emerald-600/20";
-    case "In Progress":
-      return "bg-blue-50 text-blue-700 ring-blue-700/10";
-    case "Completed":
-      return "bg-slate-100 text-slate-600 ring-slate-500/10";
-    case "Canceled":
-      return "bg-red-50 text-red-700 ring-red-600/10";
-    default:
-      return "";
-  }
-};
+export default function BookingTable({ bookings }: BookingTableProps) {
+    const navigate = useNavigate();
 
-export default function BookingTable({ bookings }: Props) {
-  return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-slate-200 bg-slate-50">
-            <tr>
-              {[
-                "Booking ID",
-                "Requester",
-                "Vehicle",
-                "Schedule",
-                "Destination",
-                "Status",
-                "Actions",
-              ].map((h) => (
-                <th
-                  key={h}
-                  className={`px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500 ${
-                    h === "Actions" ? "text-right" : ""
-                  }`}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
+    const getStatusStyles = (status: string) => {
+        switch (status) {
+            case "Approved": return "bg-emerald-50 text-emerald-700 border-emerald-100 ring-emerald-600/10";
+            case "Pending": return "bg-amber-50 text-amber-700 border-amber-100 ring-amber-600/10";
+            case "Rejected": return "bg-rose-50 text-rose-700 border-rose-100 ring-rose-600/10";
+            case "Completed": return "bg-blue-50 text-blue-700 border-blue-100 ring-blue-600/10";
+            default: return "bg-slate-50 text-slate-700 border-slate-100 ring-slate-600/10";
+        }
+    };
 
-          <tbody className="divide-y divide-slate-200">
-            {bookings.map((b) => (
-              <tr
-                key={b.id}
-                className="group hover:bg-slate-50 transition-colors"
-              >
-                {/* Booking ID */}
-                <td className="px-6 py-4 font-medium text-slate-900">
-                  {b.id}
-                </td>
+    return (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-slate-50/50 border-b border-slate-100">
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Booking ID</th>
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Schedule</th>
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Destination</th>
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Vehicle</th>
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                        {bookings && bookings.length > 0 ? (
+                            bookings.map((booking) => {
+                                // ป้องกัน Error โดยการแยกวันที่และเวลาอย่างปลอดภัย
+                                const dateTimeParts = booking.start_datetime?.split('T') || ["N/A", "N/A"];
+                                const date = dateTimeParts[0];
+                                const time = dateTimeParts[1] || "";
 
-                {/* Requester */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-slate-200" />
-                    <div>
-                      <div className="font-medium text-slate-900">
-                        User #{b.requester_id}
-                      </div>
-                      <div className="text-xs text-slate-500">Department</div>
-                    </div>
-                  </div>
-                </td>
-
-                {/* Vehicle */}
-                <td className="px-6 py-4">
-                  <div className="font-medium text-slate-900">
-                    Vehicle #{b.vehicle_id ?? "-"}
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    Fleet Vehicle
-                  </div>
-                </td>
-
-                {/* Schedule */}
-                <td className="px-6 py-4">
-                  <div className="text-slate-900">
-                    {new Date(b.start_datetime).toLocaleDateString()}
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    {new Date(b.start_datetime).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}{" "}
-                    -{" "}
-                    {new Date(b.end_datetime).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                </td>
-
-                {/* Destination */}
-                <td className="px-6 py-4 text-slate-700">
-                  {b.dropoff_location ?? "-"}
-                </td>
-
-                {/* Status */}
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${statusStyle(
-                      b.status
-                    )}`}
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                    {b.status}
-                  </span>
-                </td>
-
-                {/* Actions */}
-                <td className="px-6 py-4 text-right">
-                  <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="rounded p-1.5 text-slate-500 hover:bg-slate-100 hover:text-blue-600">
-                      <span className="material-symbols-outlined text-[20px]">
-                        visibility
-                      </span>
-                    </button>
-                    <button className="rounded p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600">
-                      <span className="material-symbols-outlined text-[20px]">
-                        close
-                      </span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-
-            {bookings.length === 0 && (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="px-6 py-12 text-center text-slate-400"
-                >
-                  ไม่พบข้อมูลการจอง
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between border-t border-slate-200 px-6 py-4">
-        <p className="text-sm text-slate-500">
-          Showing <b>1</b> to <b>{bookings.length}</b> results
-        </p>
-        <div className="flex gap-2">
-          <button className="rounded-lg border px-3 py-1.5 text-sm">
-            Previous
-          </button>
-          <button className="rounded-lg border px-3 py-1.5 text-sm">
-            Next
-          </button>
+                                return (
+                                    <tr 
+                                        key={booking.id} 
+                                        className="hover:bg-slate-50/30 transition-colors group cursor-pointer"
+                                        onClick={() => navigate(`/bookings/${booking.id}`)}
+                                    >
+                                        <td className="px-6 py-4">
+                                            <span className="font-bold text-blue-600 text-sm">#{booking.id}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-bold text-slate-900">{date}</span>
+                                                <span className="text-xs text-slate-500">{time}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
+                                                <span className="material-symbols-outlined text-slate-300 text-lg">location_on</span>
+                                                <span className="text-sm text-slate-600 truncate max-w-[200px]">{booking.destination || "No destination"}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-slate-600 font-medium">
+                                            {booking.vehicleType || "Not specified"}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold ring-1 ring-inset ${getStatusStyles(booking.status)}`}>
+                                                <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-current"></span>
+                                                {booking.status || "Unknown"}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all">
+                                                <span className="material-symbols-outlined">more_vert</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan={6} className="py-24 text-center">
+                                    <div className="flex flex-col items-center">
+                                        <span className="material-symbols-outlined text-5xl text-slate-200 mb-2">calendar_today</span>
+                                        <p className="text-slate-400 font-bold">No bookings found</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }
