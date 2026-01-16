@@ -1,7 +1,9 @@
 // src/services/db.ts
 
+const STORAGE_KEY = "bookings";
+
+
 export interface Booking {
-    destination: ReactNode;
     id: string;
     requester_id: number;
     purpose: string;
@@ -16,64 +18,106 @@ export interface Booking {
     reject_reason?: string;
 }
 
-const STORAGE_KEY = 'fleet_bookings';
+/**
+ * 🔹 Helper: อ่านข้อมูลจาก storage แบบปลอดภัย
+ */
+function readStorage(): Booking[] {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        return JSON.parse(raw) as Booking[];
+    } catch (err) {
+        console.error("Failed to read bookings:", err);
+        return [];
+    }
+}
 
-export const dbService = {
+/**
+ * 🔹 Helper: เขียนข้อมูลลง storage
+ */
+function writeStorage(data: Booking[]) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function generateBookingId(bookings: Booking[]): string {
+    // ดึงเฉพาะ id ที่ขึ้นต้นด้วย BK-
+    const ids = bookings
+        .map(b => b.id)
+        .filter(id => id.startsWith("BK-"))
+        .map(id => Number(id.replace("BK-", "")))
+        .filter(n => !isNaN(n));
+
+    const nextNumber = ids.length > 0 ? Math.max(...ids) + 1 : 1;
+
+    return `BK-${String(nextNumber).padStart(6, "0")}`;
+}
+
+
+export const bookingDB = {
+
     getAllBookings(): Booking[] {
-        const data = localStorage.getItem(STORAGE_KEY);
-        if (!data) {
-            const seed: Booking[] = [
-                {
-                    id: "#BK-2026-8564",
-                    requester_id: 1,
-                    purpose: "Client Meeting",
-                    status: "Pending",
-                    start_datetime: "2026-01-20T09:00",
-                    end_datetime: "2026-01-20T14:00",
-                    pickup_location: "Head Office",
-                    dropoff_location: "Central Plaza",
-                    passenger_count: 2,
-                    vehicle_id: 101,
-                    destination: undefined,
-                    vehicleType: ""
-                }
-            ];
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
-            return seed;
-        }
-        return JSON.parse(data);
+        return readStorage();
     },
 
-    getBookingById(id: string) {
+    getBookingById(id: string): Booking | undefined {
+        return this.getAllBookings().find(b => b.id === id);
+    },
+
+    createBooking(booking: Omit<Booking, "id"> & { id?: string }) {
         const bookings = this.getAllBookings();
-        const cleanId = id.startsWith("#") ? id : `#${id}`;
-        return bookings.find(b => b.id === cleanId);
+
+        const id = booking.id ?? generateBookingId(bookings);
+
+        const exists = bookings.some(b => b.id === id);
+        if (exists) {
+            throw new Error("Booking ID already exists");
+        }
+
+        bookings.push({
+            ...booking,
+            id,
+            status: booking.status ?? "Pending"
+        });
+
+        writeStorage(bookings);
     },
 
 
-    createBooking(data: Omit<Booking, 'id' | 'status'>): Booking {
-        const current = this.getAllBookings();
-        const newBooking: Booking = {
-            ...data,
-            id: `#BK-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-            status: 'Pending'
-        };
-        const updated = [newBooking, ...current];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        return newBooking;
+    updateBooking(updatedBooking: Booking) {
+        const bookings = this.getAllBookings().map(b =>
+            b.id === updatedBooking.id ? updatedBooking : b
+        );
+
+        writeStorage(bookings);
     },
 
     approveBooking(id: string) {
         const updated = this.getAllBookings().map(b =>
             b.id === id ? { ...b, status: 'Approved' } : b
         );
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        writeStorage(updated);
     },
 
     rejectBooking(id: string, reason: string) {
         const updated = this.getAllBookings().map(b =>
-            b.id === id ? { ...b, status: 'Rejected', reject_reason: reason } : b
+            b.id === id
+                ? { ...b, status: 'Rejected', reject_reason: reason }
+                : b
         );
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        writeStorage(updated);
+    },
+
+    cancelBooking(id: string) {
+        const updated = this.getAllBookings().map(b =>
+            b.id === id ? { ...b, status: 'Canceled' } : b
+        );
+        writeStorage(updated);
+    },
+
+    clearAll() {
+        localStorage.removeItem(STORAGE_KEY);
     }
 };
+
+export const dbService = bookingDB;
+

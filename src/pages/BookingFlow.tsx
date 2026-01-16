@@ -26,7 +26,9 @@ export default function BookingFlow() {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      {step === 1 && <UsageDetails data={bookingData} updateData={updateData} onNext={() => setStep(2)} />}
+      {step === 1 && <UsageDetails data={bookingData} updateData={updateData} onNext={() => setStep(2)} onCancel={function (): void {
+              throw new Error("Function not implemented.");
+          } } />}
       {step === 2 && <VehicleSelection data={bookingData} updateData={updateData} onNext={() => setStep(3)} onBack={() => setStep(1)} />}
       {step === 3 && <BookingConfirmation data={bookingData} onBack={() => setStep(2)} />}
     </div>

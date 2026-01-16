@@ -1,7 +1,8 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
-
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
 import MainLayout from "./layouts/MainLayout";
+
 import Dashboard from "./pages/Dashboard";
 import Booking from "./pages/Booking";
 import BookingDetail from "./pages/BookingDetail";
@@ -9,31 +10,45 @@ import BookingApprove from "./pages/BookingApprove";
 import CreateBooking from "./pages/CreateBooking";
 import VehicleList from "./pages/VehicleList";
 import NewBookingFlow from "./pages/NewBookingFlow";
+import { type User } from "./services/auth";
 
 export default function App() {
-  const [userRole, setUserRole] = useState<'admin' | 'approver'>('admin');
-  const isLoggedIn = true; // mock auth
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<"admin" | "approver">("admin");
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/"
-          element={
-            isLoggedIn ? (
-              <MainLayout userRole={userRole} setUserRole={setUserRole} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="bookings" element={<Booking />} />
-          <Route path="/bookings/new" element={<NewBookingFlow />} />
-          <Route path="bookings/:id" element={<BookingDetail />} />
-          <Route path="approve" element={<BookingApprove />} />
-          <Route path="vehicles" element={<VehicleList />} />
-        </Route>
+        {/* หน้า login */}
+        {!currentUser && (
+          <Route
+            path="/*"
+            element={
+              <Login
+                onLogin={(user) => {
+                  setCurrentUser(user);
+                  setUserRole(user.role === "admin" ? "admin" : "approver");
+                }}
+              />
+            }
+          />
+        )}
+
+        {/* Main layout สำหรับ user ที่ login แล้ว */}
+        {currentUser && (
+          <Route path="/*" element={<MainLayout userRole={userRole} setUserRole={setUserRole} />}>
+            {/* Nested routes */}
+            <Route index element={<Dashboard />} />
+            <Route path="bookings" element={<Booking />} />
+            <Route path="bookings/new" element={<NewBookingFlow />} />
+            <Route path="bookings/:id" element={<BookingDetail />} />
+            <Route path="approve" element={<BookingApprove />} />
+            <Route path="vehicles" element={<VehicleList />} />
+          </Route>
+        )}
+
+        {/* ถ้า user พยายามเข้าหน้าอื่นโดยไม่ได้ login */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
