@@ -7,10 +7,10 @@ import Dashboard from "./pages/Dashboard";
 import Booking from "./pages/Booking";
 import BookingDetail from "./pages/BookingDetail";
 import BookingApprove from "./pages/BookingApprove";
-import CreateBooking from "./pages/CreateBooking";
 import VehicleList from "./pages/VehicleList";
 import NewBookingFlow from "./pages/NewBookingFlow";
 import { type User } from "./services/auth";
+import DriverManagement from "./pages/DriverManagement";
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -44,6 +44,7 @@ export default function App() {
             <Route path="bookings/:id" element={<BookingDetail />} />
             <Route path="approve" element={<BookingApprove />} />
             <Route path="vehicles" element={<VehicleList />} />
+            <Route path="drivers" element={<DriverManagement />} />
           </Route>
         )}
 

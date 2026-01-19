@@ -249,7 +249,7 @@ export default function BookingConfirmation({ formData, setFormData, onBack }: S
                         </button>
                         <button
                             onClick={handleCreateBooking}
-                            className="px-8 py-3 rounded-lg bg-primary text-white font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:shadow-blue-500/40 transition-all transform hover:-translate-y-0.5"
+                            className="px-8 py-3 rounded-lg bg-blue-700 text-white font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:shadow-blue-500/40 transition-all transform hover:-translate-y-0.5"
                         >
                             Create Booking
                         </button>
